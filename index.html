@@ -2,902 +2,205 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>SFR Fuel Pin Temperature Calculator</title>
+  <title>NQE599 — SFR Fuel Pin Calculator</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: Arial, sans-serif;
-      background: #1a1a2e;
+      background: #0f0f1a;
       color: #e0e0e0;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-      color: #00d4ff;
-      font-size: 22px;
-      margin-bottom: 20px;
-      letter-spacing: 2px;
-    }
-    .main {
-      display: flex;
-      gap: 20px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    .panel {
-      width: 280px;
-      flex-shrink: 0;
-      background: #16213e;
-      border-radius: 12px;
-      padding: 20px;
-      border: 1px solid #0f3460;
-    }
-    .panel h2 {
-      font-size: 13px;
-      color: #00d4ff;
-      letter-spacing: 1px;
-      margin-bottom: 14px;
-      text-transform: uppercase;
-    }
-    .field { margin-bottom: 14px; }
-    .field label {
-      display: block;
-      font-size: 12px;
-      color: #aaa;
-      margin-bottom: 4px;
-    }
-    .field select, .field input[type=range] {
-      width: 100%;
-      background: #0f3460;
-      color: #e0e0e0;
-      border: 1px solid #1a4a8a;
-      border-radius: 6px;
-      padding: 6px 8px;
-      font-size: 13px;
-    }
-    .slider-row {
+      min-height: 100vh;
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      padding: 40px 20px;
     }
-    .slider-val {
-      font-size: 13px;
-      color: #00d4ff;
-      min-width: 70px;
-      text-align: right;
-    }
-    .results { margin-top: 20px; }
-    .results h2 {
-      font-size: 13px;
-      color: #00d4ff;
-      letter-spacing: 1px;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-    }
-    .temp-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-    .temp-card {
-      background: #0f3460;
-      border-radius: 8px;
-      padding: 8px 10px;
+    .container { max-width: 760px; width: 100%; }
+
+    /* 顶部标题区 */
+    .header {
       text-align: center;
+      margin-bottom: 48px;
     }
-    .temp-card .clabel {
-      font-size: 11px;
-      color: #aaa;
-      margin-bottom: 2px;
+    .course-tag {
+      display: inline-block;
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: #00d4ff;
+      border: 1px solid #00d4ff44;
+      border-radius: 20px;
+      padding: 4px 16px;
+      margin-bottom: 20px;
     }
-    .temp-card .cval {
+    .header h1 {
+      font-size: 32px;
+      color: #ffffff;
+      line-height: 1.3;
+      margin-bottom: 12px;
+    }
+    .header h1 span { color: #00d4ff; }
+    .header p {
+      font-size: 14px;
+      color: #888;
+      line-height: 1.6;
+    }
+
+    /* 卡片 */
+    .cards { display: flex; flex-direction: column; gap: 16px; }
+
+    .card {
+      background: #16213e;
+      border: 1px solid #1e3a6e;
+      border-radius: 14px;
+      padding: 24px 28px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .card:hover {
+      border-color: #00d4ff;
+      background: #1a2a4a;
+    }
+
+    .card-num {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 18px;
       font-weight: bold;
-      color: #fff;
+      flex-shrink: 0;
     }
-    .temp-card.centerline {
-      grid-column: span 2;
-      background: #1a4a8a;
-      border: 1px solid #00d4ff;
-    }
-    .temp-card.centerline .cval { color: #00d4ff; font-size: 22px; }
-    .melt-warn {
-      margin-top: 10px;
-      background: #5c1010;
-      border: 1px solid #ff4444;
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-size: 13px;
-      color: #ff8888;
-      text-align: center;
-      display: none;
-    }
-    .dt-bars { margin-top: 16px; }
-    .dt-bars h2 {
-      font-size: 13px;
-      color: #00d4ff;
-      letter-spacing: 1px;
-      margin-bottom: 10px;
+    .num-blue   { background: #0f3460; color: #00d4ff; }
+    .num-purple { background: #2d1b4e; color: #b794f4; }
+    .num-green  { background: #0d3321; color: #68d391; }
+
+    .card-body { flex: 1; }
+    .card-label {
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: #888;
       text-transform: uppercase;
+      margin-bottom: 4px;
     }
-    .bar-row { margin-bottom: 8px; }
-    .bar-label {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      color: #aaa;
-      margin-bottom: 3px;
+    .card-title {
+      font-size: 17px;
+      font-weight: bold;
+      color: #ffffff;
+      margin-bottom: 6px;
     }
-    .bar-track {
-      background: #0f3460;
-      border-radius: 4px;
-      height: 10px;
-      overflow: hidden;
-    }
-    .bar-fill {
-      height: 100%;
-      border-radius: 4px;
-      transition: width 0.3s;
-    }
-    .viz { flex: 1; display: flex; flex-direction: column; gap: 16px; }
-    .canvas-box {
-      background: #16213e;
-      border-radius: 12px;
-      padding: 16px;
-      border: 1px solid #0f3460;
-    }
-    .canvas-box h3 {
+    .card-desc {
       font-size: 13px;
-      color: #00d4ff;
-      margin-bottom: 12px;
-      letter-spacing: 1px;
+      color: #aaa;
+      line-height: 1.5;
     }
-    canvas { display: block; width: 100%; }
+
+    .card-arrow {
+      font-size: 20px;
+      color: #555;
+      flex-shrink: 0;
+      transition: color 0.2s, transform 0.2s;
+    }
+    .card:hover .card-arrow {
+      color: #00d4ff;
+      transform: translateX(4px);
+    }
+
+    /* 文件类型标签 */
+    .tag {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-top: 6px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+    .tag-web  { background: #0f3460; color: #00d4ff; }
+    .tag-docx { background: #2d1b4e; color: #b794f4; }
+
+    /* 底部 */
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 12px;
+      color: #555;
+      line-height: 1.8;
+    }
   </style>
 </head>
 <body>
+<div class="container">
 
-<h1>SFR Fuel Pin Radial Temperature Calculator</h1>
-
-<div class="main">
-
-  <!-- Left Control Panel -->
-  <div class="panel">
-    <h2>Input Conditions</h2>
-
-    <div class="field">
-      <label>Coolant</label>
-      <select id="sel-cool">
-        <option value="Na">Liquid Sodium (Na) — SFR</option>
-        <option value="H2O">Light Water (H₂O) — LWR</option>
-        <option value="He">Helium (He) — HTGR</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>Cladding Material</label>
-      <select id="sel-clad">
-        <option value="SS316">Stainless Steel SS316 — k=20 W/mK</option>
-        <option value="Zr">Zircaloy — k=17 W/mK</option>
-        <option value="HT9">HT9 Steel — k=28 W/mK</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>Bond / Gap Type</label>
-      <select id="sel-bond">
-        <option value="He">He-Bond — k=0.25 W/mK</option>
-        <option value="Na">Na-Bond — k=62 W/mK</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>Fuel Type</label>
-      <select id="sel-fuel">
-        <option value="MOX">MOX Fuel — k=2.5 W/mK</option>
-        <option value="Metal">Metal Fuel — k=15.0 W/mK</option>
-        <option value="UO2">UO₂ Fuel — k=3.0 W/mK</option>
-      </select>
-    </div>
-
-<div class="field">
-      <label>Conductivity Model</label>
-      <select id="sel-kmodel">
-        <option value="kT">k(T) — Temperature dependent (realistic)</option>
-        <option value="const">k = const — Fixed value (simplified)</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>Linear Power q'</label>
-      <div class="slider-row">
-        <input type="range" id="sl-q" min="20" max="500" value="200" step="1">
-        <span class="slider-val"><span id="out-q">200</span> W/cm</span>
-      </div>
-    </div>
-
-    <div class="field">
-      <label>Coolant Temperature T<sub>cool</sub></label>
-      <div class="slider-row">
-        <input type="range" id="sl-T" min="150" max="650" value="400" step="1">
-        <span class="slider-val"><span id="out-T">400</span> °C</span>
-      </div>
-    </div>
-
-    <!-- Temperature Results -->
-    <div class="results">
-      <h2>Temperature Results</h2>
-      <div class="temp-grid">
-        <div class="temp-card">
-          <div class="clabel">Coolant</div>
-          <div class="cval" id="res-Tcool">—</div>
-        </div>
-        <div class="temp-card">
-          <div class="clabel">Clad Outer</div>
-          <div class="cval" id="res-Tco">—</div>
-        </div>
-        <div class="temp-card">
-          <div class="clabel">Clad Inner</div>
-          <div class="cval" id="res-Tci">—</div>
-        </div>
-        <div class="temp-card">
-          <div class="clabel">Fuel Surface</div>
-          <div class="cval" id="res-Tfs">—</div>
-        </div>
-        <div class="temp-card centerline">
-          <div class="clabel">★ Fuel Centerline Temperature</div>
-          <div class="cval" id="res-Tfc">—</div>
-        </div>
-      </div>
-      <div class="melt-warn" id="melt-warn">
-        ⚠ ABOVE MELTING POINT — Fuel melt risk!
-      </div>
-    </div>
-
-    <!-- ΔT Breakdown Bars -->
-    <div class="dt-bars">
-      <h2>Layer ΔT Breakdown</h2>
-      <div class="bar-row">
-        <div class="bar-label">
-          <span>ΔT Convection</span><span id="bar-conv-val">—</span>
-        </div>
-        <div class="bar-track">
-          <div class="bar-fill" id="bar-conv" style="background:#3a86ff;width:0%"></div>
-        </div>
-      </div>
-      <div class="bar-row">
-        <div class="bar-label">
-          <span>ΔT Cladding</span><span id="bar-clad-val">—</span>
-        </div>
-        <div class="bar-track">
-          <div class="bar-fill" id="bar-clad" style="background:#06d6a0;width:0%"></div>
-        </div>
-      </div>
-      <div class="bar-row">
-        <div class="bar-label">
-          <span>ΔT Bond / Gap</span><span id="bar-bond-val">—</span>
-        </div>
-        <div class="bar-track">
-          <div class="bar-fill" id="bar-bond" style="background:#ffbe0b;width:0%"></div>
-        </div>
-      </div>
-      <div class="bar-row">
-        <div class="bar-label">
-          <span>ΔT Fuel</span><span id="bar-fuel-val">—</span>
-        </div>
-        <div class="bar-track">
-          <div class="bar-fill" id="bar-fuel" style="background:#ff6b6b;width:0%"></div>
-        </div>
-      </div>
-    </div>
-  </div><!-- end panel -->
-
-  <!-- Right Visualisation -->
-  <div class="viz">
-    <div class="canvas-box">
-      <h3>Fuel Pin Cross-Section — Temperature Color Map</h3>
-      <canvas id="cvs-cross" width="580" height="500"></canvas>
-    </div>
-    <div class="canvas-box">
-      <h3>Radial Temperature Profile T(r)</h3>
-      <canvas id="cvs-radial" width="500" height="260"></canvas>
-    </div>
+  <div class="header">
+    <div class="course-tag">NQE599 · Advanced Nuclear Fuels</div>
+    <h1>SFR Fuel Pin <span>Radial Temperature</span> Calculator</h1>
+    <p>Homework Assignment — Vibe Coding Lab<br>
+       Prof. Ho Jin Ryu &nbsp;|&nbsp; Extension: Temperature-Dependent Conductivity k(T)</p>
   </div>
 
-</div><!-- end main -->
-
-<script>
-// ══════════════════════════════════════════════════════════
-// Material Properties Object (MAT)
-// Source: Todreas & Kazimi, Nuclear Systems Vol. 1 (2012)
-// ══════════════════════════════════════════════════════════
-const MAT = {
-  // Coolant heat transfer coefficient h [W/m²K]
-  // ΔT_conv = q' / (2π · r_co · h)
-  cool: {
-    Na:  { h: 50000 }, // Liquid sodium — excellent heat transfer
-    H2O: { h: 30000 }, // Light water
-    He:  { h:  3000 }, // Helium gas — poorest heat transfer
-  },
-  // Cladding thermal conductivity k [W/mK]
-  // ΔT_clad = q' · ln(r_co/r_ci) / (2π · k_clad)
-  clad: {
-    SS316: { k: 20 },
-    Zr:    { k: 17 },
-    HT9:   { k: 28 },
-  },
-  // Bond/gap layer thermal conductivity k [W/mK]
-  // ΔT_bond = q' · δ / (2π · r_m · k_bond)
-  // Na-Bond: nearly eliminates gap resistance (ΔT ≈ 1°C)
-  // He-Bond: large gap resistance (ΔT can exceed 400°C)
-  bond: {
-    Na: { k: 62   },
-    He: { k: 0.25 },
-  },
-  // Fuel properties
-  // ΔT_fuel = q' / (4π · k_fuel)
-  // r_f  = fuel pellet outer radius [m]
-  // r_ci = cladding inner radius    [m]
-  // r_co = cladding outer radius    [m]
-  // gap thickness δ = r_ci - r_f
-  fuel: {
-    MOX:   { k: 2.5,  T_melt: 2750, r_f: 3.0e-3, r_ci: 3.1e-3, r_co: 3.7e-3 },
-    Metal: { k: 15.0, T_melt: 1200, r_f: 3.0e-3, r_ci: 3.1e-3, r_co: 3.7e-3 },
-    UO2:   { k: 3.0,  T_melt: 2800, r_f: 3.0e-3, r_ci: 3.1e-3, r_co: 3.7e-3 },
-  },
-};
-
-// ══════════════════════════════════════════════════════════
-// Core Temperature Calculation Function
-// Inputs:
-//   q_Wcm   — linear power [W/cm]
-//   T_cool  — coolant temperature [°C]
-//   fuelKey — 'MOX' / 'Metal' / 'UO2'
-//   bondKey — 'Na' / 'He'
-//   cladKey — 'SS316' / 'Zr' / 'HT9'
-//   coolKey — 'Na' / 'H2O' / 'He'
-// ══════════════════════════════════════════════════════════
-// ══════════════════════════════════════════════════════════
-// k(T) 温度依赖热导率关联式
-// ══════════════════════════════════════════════════════════
-
-function kFuel(T, fuelKey) {
-  // T 单位：°C
-  if (fuelKey === 'MOX' || fuelKey === 'UO2') {
-    // Lucuta/MATPRO correlation:
-    // k(T) = 1/(A + B*T) + C*exp(D*T)
-    // 简化版（忽略高温辐射项）：k(T) = 1/(A + B*T)
-    // UO₂: 400°C时 k≈3.0, 1000°C时 k≈2.2, 2000°C时 k≈1.8
-    // MOX: 比UO₂略低约10%
-    const A = (fuelKey === 'MOX') ? 0.3500 : 0.3000;
-    const B = (fuelKey === 'MOX') ? 2.50e-4 : 2.16e-4;
-    const k = 1.0 / (A + B * T);
-    return Math.max(k, 1.0); // 最低不低于 1.0 W/mK
-  } else {
-    // Metal fuel (U-Zr): k 随温度缓慢上升
-    // 200°C → 14 W/mK, 600°C → 16 W/mK
-    const k = 13.0 + 0.005 * T;
-    return Math.max(k, 10.0);
-  }
-}
-
-function solveFuelDT(target, T_fs, fuelKey) {
-  // 数值积分：从 T_fs 开始，累加 k(T)*dT 直到等于 target
-  // 步长 0.5°C，最多迭代 10000 步（覆盖 5000°C 范围）
-  let integral = 0;
-  let T = T_fs;
-  const step = 0.5; // °C per step
-  for (let i = 0; i < 10000; i++) {
-    const k = kFuel(T, fuelKey);
-    integral += k * step;
-    T += step;
-    if (integral >= target) break;
-  }
-  // 返回燃料温差
-  return T - T_fs;
-}
-
-function calcFuelTemp(q_Wcm, T_cool, fuelKey, bondKey, cladKey, coolKey) {
-  const q = q_Wcm * 100;
-
-  const fuel = MAT.fuel[fuelKey];
-  const clad = MAT.clad[cladKey];
-  const bond = MAT.bond[bondKey];
-  const cool = MAT.cool[coolKey];
-
-  const r_f   = fuel.r_f;
-  const r_ci  = fuel.r_ci;
-  const r_co  = fuel.r_co;
-  const delta = r_ci - r_f;
-  const r_m   = (r_f + r_ci) / 2;
-
-  // ① Convection
-  const dT_conv = q / (2 * Math.PI * r_co * cool.h);
-
-  // ② Cladding
-  const dT_clad = q * Math.log(r_co / r_ci) / (2 * Math.PI * clad.k);
-
-  // ③ Bond/gap
-  const dT_bond = q * delta / (2 * Math.PI * r_m * bond.k);
-
-  // 先算出 T_fs，再算燃料温差
-  const T_co = T_cool + dT_conv;
-  const T_ci = T_co   + dT_clad;
-  const T_fs = T_ci   + dT_bond;  // ← T_fs 在这里定义
-
-  // ④ Fuel conduction — k(T) or const k
-  const kModel = document.getElementById('sel-kmodel').value;
-  const dT_fuel = (kModel === 'kT')
-    ? solveFuelDT(q / (4 * Math.PI), T_fs, fuelKey)
-    : q / (4 * Math.PI * fuel.k);
-
-  const T_fc = T_fs + dT_fuel;
-
-  return {
-    T_cool, T_co, T_ci, T_fs, T_fc,
-    dT_conv, dT_clad, dT_bond, dT_fuel,
-    T_melt: fuel.T_melt,
-    isMelting: T_fc > fuel.T_melt,
-  };
-}
-
-// ══════════════════════════════════════════════════════════
-// Temperature → RGB color map (blue cool → yellow → dark red hot)
-// ══════════════════════════════════════════════════════════
-function tempToRGB(T, T_min, T_max) {
-  const t = Math.max(0, Math.min(1, (T - T_min) / (T_max - T_min)));
-  // t=0 → 冷 → 蓝
-  // t=0.5 → 中 → 黄
-  // t=1 → 热 → 深红
-  let r, g, b;
-  if (t < 0.5) {
-    const s = t / 0.5;
-    r = Math.round(21  + s * (255 - 21));
-    g = Math.round(101 + s * (238 - 101));
-    b = Math.round(192 + s * (88  - 192));
-  } else {
-    const s = (t - 0.5) / 0.5;
-    r = Math.round(255 + s * (183 - 255));
-    g = Math.round(238 + s * (28  - 238));
-    b = Math.round(88  + s * (28  - 88));
-  }
-  return [r, g, b];
-}
-
-// ══════════════════════════════════════════════════════════
-// Temperature at radius r — used for pixel coloring
-// ══════════════════════════════════════════════════════════
-function tempAtR(r, res, fuelKey) {
-  const fuel = MAT.fuel[fuelKey];
-  const q = parseFloat(document.getElementById('sl-q').value) * 100;
-
-  if (r <= fuel.r_f) {
-    // 燃料内部：抛物线分布，r=0 时最高，r=r_f 时等于燃料表面温度
-    return res.T_fs + (q / (4 * Math.PI * fuel.k)) * (1 - (r * r) / (fuel.r_f * fuel.r_f));
-  } else if (r <= fuel.r_ci) {
-    // 间隙：从燃料表面(T_fs)线性降到包壳内壁(T_ci)
-    // 注意方向：r 增大，温度从 T_fs 降到 T_ci
-    const frac = (r - fuel.r_f) / (fuel.r_ci - fuel.r_f);
-    return res.T_fs - frac * res.dT_bond;
-  } else if (r <= fuel.r_co) {
-    // 包壳：对数分布，从包壳内壁(T_ci)降到包壳外壁(T_co)
-    return res.T_co + res.dT_clad * Math.log(fuel.r_co / r) / Math.log(fuel.r_co / fuel.r_ci);
-  } else {
-    return res.T_cool;
-  }
-}
-
-// ══════════════════════════════════════════════════════════
-// Draw cross-section temperature color map
-// ══════════════════════════════════════════════════════════
-function drawCrossSection(res, fuelKey) {
-  const cvs = document.getElementById('cvs-cross');
-  const ctx = cvs.getContext('2d');
-  const W = cvs.width, H = cvs.height;
-
-  // 留出右侧空间给图例和标注
-  const cx = W * 0.44, cy = H / 2;
-  const fuel = MAT.fuel[fuelKey];
-  const scale = (Math.min(cx, cy) * 0.78) / fuel.r_co;
-
-  const T_min = res.T_cool;
-  const T_max = res.T_fc;
-
-  // 背景
-  ctx.fillStyle = '#1a1a2e';
-  ctx.fillRect(0, 0, W, H);
-
-  // 逐像素着色（只处理左侧圆图区域）
-  const imgData = ctx.createImageData(W, H);
-  for (let py = 0; py < H; py++) {
-    for (let px = 0; px < W; px++) {
-      const dx = px - cx, dy = py - cy;
-      const r = Math.sqrt(dx * dx + dy * dy) / scale;
-      const idx = (py * W + px) * 4;
-// 外圆半径：冷却剂显示到包壳外径的 1.5 倍
-      const r_display = fuel.r_co * 1.5;
-      if (r > r_display) {
-        // 圆外 — 深色背景
-        imgData.data[idx]   = 26;
-        imgData.data[idx+1] = 26;
-        imgData.data[idx+2] = 46;
-        imgData.data[idx+3] = 255;
-      } else if (r > fuel.r_co * 1.15) {
-        // 冷却剂区域 — 统一蓝色圆形
-        imgData.data[idx]   = 21;
-        imgData.data[idx+1] = 101;
-        imgData.data[idx+2] = 192;
-        imgData.data[idx+3] = 255;
-      } else {
-        const T = tempAtR(r, res, fuelKey);
-        const [rr, gg, bb] = tempToRGB(T, T_min, T_max);
-        imgData.data[idx]   = rr;
-        imgData.data[idx+1] = gg;
-        imgData.data[idx+2] = bb;
-        imgData.data[idx+3] = 255;
-      }
-    }
-  }
-  ctx.putImageData(imgData, 0, 0);
-
-  // ── 层界面圆圈 + 右侧水平引线标注 ──────────────────────
-  const layers = [
-    { r: fuel.r_f,  label: 'Fuel',     temp: res.T_fs, color: '#ff6b6b' },
-    { r: fuel.r_ci, label: 'Bond/Gap', temp: res.T_ci, color: '#ffbe0b' },
-    { r: fuel.r_co, label: 'Cladding', temp: res.T_co, color: '#06d6a0' },
-  ];
-
-  // 标注行的 y 坐标，均匀分布避免重叠
-  const labelYs = [H * 0.25, H * 0.45, H * 0.65];
-const lineX1 = cx + fuel.r_co * scale * 1.18;
-  const lineX2 = lineX1 + 14;
-  const textX  = lineX2 + 5;
-
-  layers.forEach((lyr, i) => {
-    // 画层界面圆
-    ctx.beginPath();
-    ctx.arc(cx, cy, lyr.r * scale, 0, Math.PI * 2);
-    ctx.strokeStyle = '#ffffff55';
-    ctx.lineWidth = 1.2;
-    ctx.stroke();
-
-    // 圆上引线起点（右侧 3 点钟方向）
-    const dotX = cx + lyr.r * scale;
-    const dotY = cy;
-    const labelY = labelYs[i];
-
-    // 折线引线
-    ctx.beginPath();
-    ctx.moveTo(dotX, dotY);
-    ctx.lineTo(lineX1, labelY);
-    ctx.lineTo(lineX2, labelY);
-    ctx.strokeStyle = lyr.color + 'cc';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-
-    // 小圆点
-    ctx.beginPath();
-    ctx.arc(dotX, dotY, 3, 0, Math.PI * 2);
-    ctx.fillStyle = lyr.color;
-    ctx.fill();
-
-    // 文字：层名 + 温度
-    ctx.textAlign = 'left';
-    ctx.font = 'bold 12px Arial';
-    ctx.fillStyle = lyr.color;
-    ctx.fillText(lyr.label, textX, labelY - 2);
-    ctx.font = '11px Arial';
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(lyr.temp.toFixed(0) + ' °C', textX, labelY + 12);
-  });
-
-  // 冷却剂标注（最外侧）
-  const coolY = H * 0.82;
-  ctx.textAlign = 'left';
-  ctx.font = 'bold 12px Arial';
-  ctx.fillStyle = '#3a86ff';
-  ctx.fillText('Coolant', textX, coolY - 2);
-  ctx.font = '11px Arial';
-  ctx.fillStyle = '#ffffff';
-  ctx.fillText(res.T_cool.toFixed(0) + ' °C', textX, coolY + 12);
-
-  // 中心标注
-  ctx.textAlign = 'center';
-  ctx.font = 'bold 13px Arial';
-  ctx.fillStyle = '#ffffff';
-  ctx.fillText('Center', cx, cy - 10);
-  ctx.font = 'bold 15px Arial';
-  ctx.fillStyle = '#00d4ff';
-  ctx.fillText(res.T_fc.toFixed(0) + ' °C', cx, cy + 8);
-
-  // ── 右侧颜色温度图例柱 ──────────────────────────────────
-const barX  = 8;         // 柱子左边 x — 放到左侧
-  const barW  = 12;
-  const barY  = H * 0.08;
-  const barH  = H * 0.84;
-
-  // 用渐变填充颜色柱（从下=冷 到 上=热）
-  const grad = ctx.createLinearGradient(0, barY, 0, barY + barH);
-  grad.addColorStop(0,    'rgb(183,28,28)');   // 顶部 — 最高温 深红
-  grad.addColorStop(0.5,  'rgb(255,238,88)');  // 中部 — 黄
-  grad.addColorStop(1,    'rgb(21,101,192)');  // 底部 — 最低温 蓝
-  ctx.fillStyle = grad;
-  ctx.fillRect(barX, barY, barW, barH);
-
-  // 柱子边框
-  ctx.strokeStyle = '#ffffff44';
-  ctx.lineWidth = 0.8;
-  ctx.strokeRect(barX, barY, barW, barH);
-
-// 温度刻度标注 — 刻度线和文字放柱子右侧
-  ctx.textAlign = 'left';
-  ctx.font = '10px Arial';
-  for (let i = 0; i <= 4; i++) {
-    const frac = i / 4;
-    const T = T_max - frac * (T_max - T_min);
-    const y = barY + frac * barH;
-    ctx.beginPath();
-    ctx.moveTo(barX + barW, y);
-    ctx.lineTo(barX + barW + 4, y);
-    ctx.strokeStyle = '#ffffff88';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    ctx.fillStyle = '#cccccc';
-    ctx.fillText(T.toFixed(0) + '°C', barX + barW + 6, y + 4);
-  }
-
-  // 柱子顶部标题
-  ctx.textAlign = 'center';
-  ctx.font = '10px Arial';
-  ctx.fillStyle = '#aaaaaa';
-  ctx.fillText('Temp', barX + barW / 2, barY - 8);
-}
-// ══════════════════════════════════════════════════════════
-// Draw radial temperature profile T(r)
-// ══════════════════════════════════════════════════════════
-// 指定模型强制计算（不读取下拉框，用于对比）
-function calcFuelTempModel(q_Wcm, T_cool, fuelKey, bondKey, cladKey, coolKey, kModel) {
-  const q    = q_Wcm * 100;
-  const fuel = MAT.fuel[fuelKey];
-  const clad = MAT.clad[cladKey];
-  const bond = MAT.bond[bondKey];
-  const cool = MAT.cool[coolKey];
-
-  const r_f   = fuel.r_f;
-  const r_ci  = fuel.r_ci;
-  const r_co  = fuel.r_co;
-  const delta = r_ci - r_f;
-  const r_m   = (r_f + r_ci) / 2;
-
-  const dT_conv = q / (2 * Math.PI * r_co * cool.h);
-  const dT_clad = q * Math.log(r_co / r_ci) / (2 * Math.PI * clad.k);
-  const dT_bond = q * delta / (2 * Math.PI * r_m * bond.k);
-
-  const T_co = T_cool + dT_conv;
-  const T_ci = T_co   + dT_clad;
-  const T_fs = T_ci   + dT_bond;
-
-  const dT_fuel = (kModel === 'kT')
-    ? solveFuelDT(q / (4 * Math.PI), T_fs, fuelKey)
-    : q / (4 * Math.PI * fuel.k);
-
-  const T_fc = T_fs + dT_fuel;
-
-  return { T_cool, T_co, T_ci, T_fs, T_fc, dT_conv, dT_clad, dT_bond, dT_fuel,
-           T_melt: fuel.T_melt, isMelting: T_fc > fuel.T_melt };
-}
-
-// 给定半径和结果数据，计算该点温度（用于画曲线）
-function tempAtRModel(r, res, fuelKey, kModel) {
-  // kModel 作为参数传入，不从下拉框读取
-  const fuel = MAT.fuel[fuelKey];
-  const q = parseFloat(document.getElementById('sl-q').value) * 100;
-  const k = (kModel === 'kT') ? kFuel(res.T_fs, fuelKey) : fuel.k;
-
-  if (r <= fuel.r_f) {
-    return res.T_fs + (q / (4 * Math.PI * k)) * (1 - (r * r) / (fuel.r_f * fuel.r_f));
-  } else if (r <= fuel.r_ci) {
-    const frac = (r - fuel.r_f) / (fuel.r_ci - fuel.r_f);
-    return res.T_fs - frac * res.dT_bond;
-  } else if (r <= fuel.r_co) {
-    return res.T_co + res.dT_clad * Math.log(fuel.r_co / r) / Math.log(fuel.r_co / fuel.r_ci);
-  } else {
-    return res.T_cool;
-  }
-}
-
-function drawRadialProfile(res, fuelKey) {
-  const cvs = document.getElementById('cvs-radial');
-  const ctx = cvs.getContext('2d');
-  const W = cvs.width, H = cvs.height;
-  const PAD = { top: 30, right: 20, bottom: 40, left: 60 };
-  const pw = W - PAD.left - PAD.right;
-  const ph = H - PAD.top  - PAD.bottom;
-
-  ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = '#16213e';
-  ctx.fillRect(0, 0, W, H);
-
-  const fuel = MAT.fuel[fuelKey];
-  const r_max = fuel.r_co * 1.4;
-
-  // 同时计算两种模型的结果用于对比
-  const q_Wcm  = parseFloat(document.getElementById('sl-q').value);
-  const T_cool = parseFloat(document.getElementById('sl-T').value);
-  const bondKey = document.getElementById('sel-bond').value;
-  const cladKey = document.getElementById('sel-clad').value;
-  const coolKey = document.getElementById('sel-cool').value;
-
-  // 强制用 const k 算一组结果
-  const resConst = calcFuelTempModel(q_Wcm, T_cool, fuelKey, bondKey, cladKey, coolKey, 'const');
-  // 强制用 k(T) 算一组结果
-  const resKT    = calcFuelTempModel(q_Wcm, T_cool, fuelKey, bondKey, cladKey, coolKey, 'kT');
-
-  // Y轴范围取两条曲线最大值
-  const T_min = T_cool - 30;
-  const T_max = Math.max(resConst.T_fc, resKT.T_fc) * 1.06;
-
-  const xMap = r => PAD.left + (r / r_max) * pw;
-  const yMap = T => PAD.top  + ph - ((T - T_min) / (T_max - T_min)) * ph;
-
-  // 区域背景
-  [
-    { r0: 0,         r1: fuel.r_f,  color: 'rgba(255,107,107,0.12)', label: 'Fuel'     },
-    { r0: fuel.r_f,  r1: fuel.r_ci, color: 'rgba(255,190,11,0.15)',  label: 'Bond'     },
-    { r0: fuel.r_ci, r1: fuel.r_co, color: 'rgba(6,214,160,0.12)',   label: 'Cladding' },
-    { r0: fuel.r_co, r1: r_max,     color: 'rgba(58,134,255,0.10)',  label: 'Coolant'  },
-  ].forEach(z => {
-    ctx.fillStyle = z.color;
-    ctx.fillRect(xMap(z.r0), PAD.top, xMap(z.r1) - xMap(z.r0), ph);
-    ctx.fillStyle = '#888';
-    ctx.font = '11px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText(z.label, (xMap(z.r0) + xMap(z.r1)) / 2, PAD.top + ph + 28);
-  });
-
-  // 网格线 + Y轴标签
-  ctx.strokeStyle = '#1a3a6a';
-  ctx.lineWidth = 0.8;
-  for (let i = 0; i <= 5; i++) {
-    const y = PAD.top + (ph / 5) * i;
-    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + pw, y); ctx.stroke();
-    const T = T_max - ((T_max - T_min) / 5) * i;
-    ctx.fillStyle = '#888';
-    ctx.font = '11px Arial';
-    ctx.textAlign = 'right';
-    ctx.fillText(T.toFixed(0), PAD.left - 6, y + 4);
-  }
-
-  // 层界面竖线
-  [fuel.r_f, fuel.r_ci, fuel.r_co].forEach(r => {
-    ctx.beginPath();
-    ctx.strokeStyle = '#ffffff33';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([4, 4]);
-    ctx.moveTo(xMap(r), PAD.top);
-    ctx.lineTo(xMap(r), PAD.top + ph);
-    ctx.stroke();
-    ctx.setLineDash([]);
-  });
-
-  // 画曲线的通用函数
- function drawCurve(resData, color, dash, kModel) {
-    ctx.beginPath();
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
-    ctx.setLineDash(dash || []);
-    for (let i = 0; i <= 300; i++) {
-      const r = (i / 300) * r_max;
-      const T = tempAtRModel(r, resData, fuelKey, kModel); // 传入 kModel
-      i === 0 ? ctx.moveTo(xMap(r), yMap(T)) : ctx.lineTo(xMap(r), yMap(T));
-    }
-    ctx.stroke();
-    ctx.setLineDash([]);
-  }
-
-  // 先画 const k（蓝色虚线）
-  drawCurve(resConst, '#3a86ff', [6, 3], 'const');
-  // 再画 k(T)（橙色实线）
-  drawCurve(resKT, '#ff9f1c', [], 'kT');
-
-  // 标注两条曲线的中心温度
-  ctx.font = 'bold 11px Arial';
-  ctx.textAlign = 'left';
-
-  // const k 中心温度标注
-  ctx.fillStyle = '#3a86ff';
-  ctx.fillText('const k: ' + resConst.T_fc.toFixed(0) + '°C', xMap(0) + 4, yMap(resConst.T_fc) - 6);
-
-  // k(T) 中心温度标注
-  ctx.fillStyle = '#ff9f1c';
-  ctx.fillText('k(T): ' + resKT.T_fc.toFixed(0) + '°C', xMap(0) + 4, yMap(resKT.T_fc) + 14);
-
-  // 图例（右上角）
-  const legX = PAD.left + pw - 160;
-  const legY = PAD.top + 10;
-  ctx.fillStyle = '#1a2a4a';
-  ctx.fillRect(legX - 8, legY - 4, 168, 44);
-  ctx.strokeStyle = '#ffffff22';
-  ctx.lineWidth = 0.5;
-  ctx.strokeRect(legX - 8, legY - 4, 168, 44);
-
-  // 图例第一行：k(T)
-  ctx.beginPath();
-  ctx.strokeStyle = '#ff9f1c';
-  ctx.lineWidth = 2;
-  ctx.setLineDash([]);
-  ctx.moveTo(legX, legY + 8); ctx.lineTo(legX + 24, legY + 8);
-  ctx.stroke();
-  ctx.fillStyle = '#ff9f1c';
-  ctx.font = '11px Arial';
-  ctx.textAlign = 'left';
-  ctx.fillText('k(T) — temperature dependent', legX + 28, legY + 12);
-
-  // 图例第二行：const k
-  ctx.beginPath();
-  ctx.strokeStyle = '#3a86ff';
-  ctx.lineWidth = 2;
-  ctx.setLineDash([6, 3]);
-  ctx.moveTo(legX, legY + 28); ctx.lineTo(legX + 24, legY + 28);
-  ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.fillStyle = '#3a86ff';
-  ctx.fillText('k = const — simplified', legX + 28, legY + 32);
-
-  // Y轴标题
-  ctx.fillStyle = '#aaa';
-  ctx.font = '12px Arial';
-  ctx.textAlign = 'center';
-  ctx.save();
-  ctx.translate(14, PAD.top + ph / 2);
-  ctx.rotate(-Math.PI / 2);
-  ctx.fillText('Temperature [°C]', 0, 0);
-  ctx.restore();
-}
-
-// ══════════════════════════════════════════════════════════
-// Update all UI elements (called on every control change)
-// ══════════════════════════════════════════════════════════
-function update() {
-  const q_Wcm   = parseFloat(document.getElementById('sl-q').value);
-  const T_cool  = parseFloat(document.getElementById('sl-T').value);
-  const fuelKey = document.getElementById('sel-fuel').value;
-  const bondKey = document.getElementById('sel-bond').value;
-  const cladKey = document.getElementById('sel-clad').value;
-  const coolKey = document.getElementById('sel-cool').value;
-
-  document.getElementById('out-q').textContent = q_Wcm;
-  document.getElementById('out-T').textContent = T_cool;
-
-  const res = calcFuelTemp(q_Wcm, T_cool, fuelKey, bondKey, cladKey, coolKey);
-
-  document.getElementById('res-Tcool').textContent = res.T_cool.toFixed(0) + ' °C';
-  document.getElementById('res-Tco').textContent   = res.T_co.toFixed(0)   + ' °C';
-  document.getElementById('res-Tci').textContent   = res.T_ci.toFixed(0)   + ' °C';
-  document.getElementById('res-Tfs').textContent   = res.T_fs.toFixed(0)   + ' °C';
-  document.getElementById('res-Tfc').textContent   = res.T_fc.toFixed(0)   + ' °C';
-
-  document.getElementById('melt-warn').style.display = res.isMelting ? 'block' : 'none';
-
-  const dTs   = [res.dT_conv, res.dT_clad, res.dT_bond, res.dT_fuel];
-  const maxDT = Math.max(...dTs, 1);
-  ['conv','clad','bond','fuel'].forEach((id, i) => {
-    document.getElementById('bar-' + id).style.width = (dTs[i] / maxDT * 100).toFixed(1) + '%';
-    document.getElementById('bar-' + id + '-val').textContent = dTs[i].toFixed(1) + ' °C';
-  });
-
-  drawCrossSection(res, fuelKey);
-  drawRadialProfile(res, fuelKey);
-}
-
-// Bind all control events
-['sel-cool','sel-clad','sel-bond','sel-fuel','sel-kmodel','sl-q','sl-T'].forEach(id => {
-  document.getElementById(id).addEventListener('input', update);
-});
-
-// Initial render on page load
-update();
-</script>
-
+  <div class="cards">
+
+    <!-- Deliverable 1 -->
+    <a class="card" href="index.html">
+      <div class="card-num num-blue">D1</div>
+      <div class="card-body">
+        <div class="card-label">Deliverable 1</div>
+        <div class="card-title">Interactive SFR Fuel Pin Calculator</div>
+        <div class="card-desc">
+          Full radial temperature calculator with cross-section color map,
+          radial profile, k(T) vs const-k comparison, and melt warning.
+        </div>
+        <span class="tag tag-web">WEB APP</span>
+      </div>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <!-- Deliverable 2 -->
+    <a class="card" href="deliverable2_prompt_log.docx">
+      <div class="card-num num-purple">D2</div>
+      <div class="card-body">
+        <div class="card-label">Deliverable 2</div>
+        <div class="card-title">AI Prompt Log with Annotations</div>
+        <div class="card-desc">
+          All 10 prompts used during development, annotated with
+          7 identified errors and the physics-based fixes applied.
+        </div>
+        <span class="tag tag-docx">DOCX DOWNLOAD</span>
+      </div>
+      <div class="card-arrow">↓</div>
+    </a>
+
+    <!-- Deliverable 3 -->
+    <a class="card" href="deliverable3_technical_memo.docx">
+      <div class="card-num num-green">D3</div>
+      <div class="card-body">
+        <div class="card-label">Deliverable 3</div>
+        <div class="card-title">Technical Memo — Peak Temperature Analysis</div>
+        <div class="card-desc">
+          One-page technical memo explaining physically why peak
+          temperature location shifts with material selection and k(T) model.
+        </div>
+        <span class="tag tag-docx">DOCX DOWNLOAD</span>
+      </div>
+      <div class="card-arrow">↓</div>
+    </a>
+
+  </div>
+
+  <div class="footer">
+    Built with Vibe Coding — Claude AI + Physics Understanding<br>
+    <a href="https://shengy-ai.github.io/sfr-calculator/" 
+       style="color:#00d4ff; text-decoration:none;">
+      shengy-ai.github.io/sfr-calculator
+    </a>
+  </div>
+
+</div>
 </body>
 </html>
